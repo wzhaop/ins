@@ -93,6 +93,7 @@ then
     PLIST_PATH="${APP_DIR}/Info.plist"
     /usr/libexec/PlistBuddy -c "Set :UIFileSharingEnabled false" "${PLIST_PATH}" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIFileSharingEnabled bool false" "${PLIST_PATH}" 2>/dev/null || true
     /usr/libexec/PlistBuddy -c "Set :LSSupportsOpeningDocumentsInPlace false" "${PLIST_PATH}" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :LSSupportsOpeningDocumentsInPlace bool false" "${PLIST_PATH}" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Delete :UISupportsDocumentBrowser" "${PLIST_PATH}" 2>/dev/null || true
     
     # 重新打包成精简版底包，并清理临时文件
     cd "packages/temp_extract" && zip -qr "../cleaned_base.ipa" Payload && cd ../..
@@ -102,7 +103,7 @@ then
     # --- 精简结束 ---
 
     rm -f packages/SCInsta-sideloaded.ipa
-    cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -du
+    cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -u
     
     # Patch IPA for sideloading
     ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm
@@ -114,11 +115,10 @@ then
     
     /usr/libexec/PlistBuddy -c "Set :UIFileSharingEnabled false" "${FINAL_APP_DIR}/Info.plist" 2>/dev/null || true
     /usr/libexec/PlistBuddy -c "Set :LSSupportsOpeningDocumentsInPlace false" "${FINAL_APP_DIR}/Info.plist" 2>/dev/null || true
-    
+    /usr/libexec/PlistBuddy -c "Delete :UISupportsDocumentBrowser" "${FINAL_APP_DIR}/Info.plist" 2>/dev/null || true
     cd "packages/final_extract" && rm -f "../SCInsta-sideloaded.ipa" && zip -qr "../SCInsta-sideloaded.ipa" Payload && cd ../..
     rm -rf "packages/final_extract"
     # --- 结束 ---
-
     echo -e "\033[1m\033[32mDone, we hope you enjoy SCInsta!\033[0m\n\nYou can find the ipa file at: $(pwd)/packages"
 
 elif [ "$1" == "rootless" ];
