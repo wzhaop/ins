@@ -80,8 +80,10 @@ then
     # 解压底包到临时目录
     unzip -q "packages/${ipaFile}" -d "packages/temp_extract"
     
-    # 1. 删除扩展程序 (彻底解决签名超额问题)
+    # 1. 强力彻底删除所有扩展程序及文件夹 (解决 Bundle ID 不匹配报错)
     rm -rf "packages/temp_extract/Payload/Instagram.app/PlugIns"
+    rm -rf "packages/temp_extract/Payload/Instagram.app/Extensions"
+    find "packages/temp_extract/Payload/Instagram.app" -type d -name "*.appex" -exec rm -rf {} +
     # 2. 删除 Apple Watch 应用
     rm -rf "packages/temp_extract/Payload/Instagram.app/Watch"
     # 3. 删除多余语言包 (仅保留英文、简体中文和基础架构)
