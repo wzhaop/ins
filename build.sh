@@ -88,6 +88,10 @@ then
     rm -rf "packages/temp_extract/Payload/Instagram.app/Watch"
     # 3. 删除多余语言包 (仅保留英文、简体中文和基础架构)
     find "packages/temp_extract/Payload/Instagram.app" -type d -name "*.lproj" -not -name "en.lproj" -not -name "Base.lproj" -not -name "zh-Hans.lproj" -exec rm -rf {} +
+
+    # 4. 修改 Info.plist，禁止应用在 iOS“文件”App 中生成文件夹
+    plutil -replace UIFileSharingEnabled -bool NO "packages/temp_extract/Payload/Instagram.app/Info.plist" 2>/dev/null || true
+    plutil -replace LSSupportsOpeningDocumentsInPlace -bool NO "packages/temp_extract/Payload/Instagram.app/Info.plist" 2>/dev/null || true
     
     # 重新打包成精简版底包，并清理临时文件
     cd "packages/temp_extract" && zip -qr "../cleaned_base.ipa" Payload && cd ../..
