@@ -36,7 +36,7 @@ then
         FLEXPATH=''
         COMPRESSION=0
     else
-        # Clear cached FLEX libs
+        # Clear cached FLEX 
         rm -rf "packages/cache"
 
         MAKEARGS='SIDELOAD=1'
