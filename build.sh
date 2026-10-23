@@ -76,28 +76,28 @@ then
     echo -e '\033[1m\033[32mCreating the IPA file...\033[0m'
 
     # --- 新增：深度精简底包冗余文件 ---
-    echo -e '\033[1m\033[33mCleaning up redundant files...\033[0m'
-    # 解压底包到临时目录
+    echo -e '\033[1m\033[33mCleaning up redundant files and patching Info.plist...\033[0m'
     unzip -q "packages/${ipaFile}" -d "packages/temp_extract"
+    APP_DIR=$(find "packages/temp_extract/Payload" -type d -name "*.app" | head -n 1)
     
     # 1. 强力彻底删除所有扩展程序及文件夹 (解决 Bundle ID 不匹配报错)
-    rm -rf "packages/temp_extract/Payload/Instagram.app/PlugIns"
-    rm -rf "packages/temp_extract/Payload/Instagram.app/Extensions"
-    find "packages/temp_extract/Payload/Instagram.app" -type d -name "*.appex" -exec rm -rf {} +
+    rm -rf "${APP_DIR}/PlugIns"
+    rm -rf "${APP_DIR}/Extensions"
+    find "${APP_DIR}" -type d -name "*.appex" -exec rm -rf {} +
     # 2. 删除 Apple Watch 应用
-    rm -rf "packages/temp_extract/Payload/Instagram.app/Watch"
+    rm -rf "${APP_DIR}/Watch"
     # 3. 删除多余语言包 (仅保留英文、简体中文和基础架构)
-    find "packages/temp_extract/Payload/Instagram.app" -type d -name "*.lproj" -not -name "en.lproj" -not -name "Base.lproj" -not -name "zh-Hans.lproj" -exec rm -rf {} +
+    find "${APP_DIR}" -type d -name "*.lproj" -not -name "en.lproj" -not -name "Base.lproj" -not -name "zh-Hans.lproj" -exec rm -rf {} +
 
     # 4. 修改 Info.plist，禁止应用在 iOS“文件”App 中生成文件夹
-    plutil -replace UIFileSharingEnabled -bool NO "packages/temp_extract/Payload/Instagram.app/Info.plist" 2>/dev/null || true
-    plutil -replace LSSupportsOpeningDocumentsInPlace -bool NO "packages/temp_extract/Payload/Instagram.app/Info.plist" 2>/dev/null || true
+    PLIST_PATH="${APP_DIR}/Info.plist"
+    /usr/libexec/PlistBuddy -c "Set :UIFileSharingEnabled false" "${PLIST_PATH}" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIFileSharingEnabled bool false" "${PLIST_PATH}" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :LSSupportsOpeningDocumentsInPlace false" "${PLIST_PATH}" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :LSSupportsOpeningDocumentsInPlace bool false" "${PLIST_PATH}" 2>/dev/null || true
     
     # 重新打包成精简版底包，并清理临时文件
     cd "packages/temp_extract" && zip -qr "../cleaned_base.ipa" Payload && cd ../..
     rm -rf "packages/temp_extract"
     
-    # 让后续的 cyan 注入工具使用我们刚刚做好的精简版底包
     ipaFile="cleaned_base.ipa"
     # --- 精简结束 ---
 
