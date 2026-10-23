@@ -33,14 +33,14 @@ then
         fi
 
         MAKEARGS='DEV=1'
-        FLEXPATH='packages/cache/FLEXing.dylib packages/cache/libflex.dylib'
+        FLEXPATH=''
         COMPRESSION=0
     else
         # Clear cached FLEX libs
         rm -rf "packages/cache"
 
         MAKEARGS='SIDELOAD=1'
-        FLEXPATH='.theos/obj/debug/FLEXing.dylib .theos/obj/debug/libflex.dylib'
+        FLEXPATH=''
         COMPRESSION=9
     fi
 
