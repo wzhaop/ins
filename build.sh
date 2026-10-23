@@ -74,6 +74,27 @@ then
 
     # Create IPA File
     echo -e '\033[1m\033[32mCreating the IPA file...\033[0m'
+
+    # --- 新增：深度精简底包冗余文件 ---
+    echo -e '\033[1m\033[33mCleaning up redundant files...\033[0m'
+    # 解压底包到临时目录
+    unzip -q "packages/${ipaFile}" -d "packages/temp_extract"
+    
+    # 1. 删除扩展程序 (彻底解决签名超额问题)
+    rm -rf "packages/temp_extract/Payload/Instagram.app/PlugIns"
+    # 2. 删除 Apple Watch 应用
+    rm -rf "packages/temp_extract/Payload/Instagram.app/Watch"
+    # 3. 删除多余语言包 (仅保留英文、简体中文和基础架构)
+    find "packages/temp_extract/Payload/Instagram.app" -type d -name "*.lproj" -not -name "en.lproj" -not -name "Base.lproj" -not -name "zh-Hans.lproj" -exec rm -rf {} +
+    
+    # 重新打包成精简版底包，并清理临时文件
+    cd "packages/temp_extract" && zip -qr "../cleaned_base.ipa" Payload && cd ../..
+    rm -rf "packages/temp_extract"
+    
+    # 让后续的 cyan 注入工具使用我们刚刚做好的精简版底包
+    ipaFile="cleaned_base.ipa"
+    # --- 精简结束 ---
+
     rm -f packages/SCInsta-sideloaded.ipa
     cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -du
     
