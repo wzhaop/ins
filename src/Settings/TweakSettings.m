@@ -4,15 +4,6 @@
 
 // MARK: - Sections
 
-///
-/// This returns an array of sections, with each section consisting of a dictionary
-///
-/// `"title"`: The section title (leave blank for no title)
-///
-/// `"rows"`: An array of **SCISetting** classes, potentially containing a "navigationCellWithTitle" initializer to allow for nested setting pages.
-///
-/// `"footer`: The section footer (leave blank for no footer)
-
 + (NSArray *)sections {
     return @[
         @{
@@ -203,30 +194,13 @@
     ];
 }
 
-
 // MARK: - Title
-
-///
-/// This is the title displayed on the initial settings page view controller
-///
 
 + (NSString *)title {
     return @"SCInsta Settings";
 }
 
-
 // MARK: - Menus
-
-///
-/// This returns a dictionary where each key corresponds to a certain menu that can be displayed.
-/// Each "propertyList"  item is an NSDictionary containing the following items:
-///
-/// `"defaultsKey"`: The key to save the selected value under in NSUserDefaults
-///
-/// `"value"`: A unique string corresponding to the menu item which is selected
-///
-/// `"requiresRestart"`: (optional) Causes a popup to appear detailing you have to restart to use these features
-///
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -337,3 +311,58 @@
                                                     @"defaultsKey": @"swipe_nav_tabs",
                                                     @"value": @"enabled",
                                                     @"requiresRestart": @YES
+                                                }
+                                ],
+                                [UICommand commandWithTitle:@"Disabled"
+                                                        image:nil
+                                                        action:@selector(menuChanged:)
+                                                propertyList:@{
+                                                    @"defaultsKey": @"swipe_nav_tabs",
+                                                    @"value": @"disabled",
+                                                    @"requiresRestart": @YES
+                                                }
+                                ]
+                            ]
+            ]
+        ]],
+
+        @"test": [UIMenu menuWithChildren:@[
+            [UIMenu menuWithTitle:@""
+                            image:nil
+                        identifier:nil
+                            options:UIMenuOptionsDisplayInline
+                            children:@[
+                                [UICommand commandWithTitle:@"ABC"
+                                                        image:nil
+                                                        action:@selector(menuChanged:)
+                                                propertyList:@{
+                                                    @"defaultsKey": @"test_menu_cell",
+                                                    @"value": @"abc"
+                                                }
+                                ],
+                                [UICommand commandWithTitle:@"123"
+                                                        image:nil
+                                                        action:@selector(menuChanged:)
+                                                propertyList:@{
+                                                    @"defaultsKey": @"test_menu_cell",
+                                                    @"value": @"123"
+                                                }
+                                ]
+                            ]
+            ],
+            [UICommand commandWithTitle:@"Requires restart"
+                                  image:nil
+                                 action:@selector(menuChanged:)
+                           propertyList:@{
+                               @"defaultsKey": @"test_menu_cell",
+                               @"value": @"requires_restart",
+                               @"requiresRestart": @YES
+                           }
+            ],
+        ]]
+    };
+}
+
+#pragma clang diagnostic pop
+
+@end
