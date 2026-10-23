@@ -107,6 +107,18 @@ then
     # Patch IPA for sideloading
     ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm
 
+    # --- 新增：在最终生成的 IPA 中强制关闭文件共享，防止注入工具复原 ---
+    echo -e '\033[1m\033[33mDisabling UIFileSharingEnabled in final IPA...\033[0m'
+    unzip -q "packages/SCInsta-sideloaded.ipa" -d "packages/final_extract"
+    FINAL_APP_DIR=$(find "packages/final_extract/Payload" -type d -name "*.app" | head -n 1)
+    
+    /usr/libexec/PlistBuddy -c "Set :UIFileSharingEnabled false" "${FINAL_APP_DIR}/Info.plist" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :LSSupportsOpeningDocumentsInPlace false" "${FINAL_APP_DIR}/Info.plist" 2>/dev/null || true
+    
+    cd "packages/final_extract" && rm -f "../SCInsta-sideloaded.ipa" && zip -qr "../SCInsta-sideloaded.ipa" Payload && cd ../..
+    rm -rf "packages/final_extract"
+    # --- 结束 ---
+
     echo -e "\033[1m\033[32mDone, we hope you enjoy SCInsta!\033[0m\n\nYou can find the ipa file at: $(pwd)/packages"
 
 elif [ "$1" == "rootless" ];
